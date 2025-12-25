@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>Администратор | Тест и чеклист</title>
+<title>Администратор | Тест с подсказками</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root {
@@ -69,6 +69,7 @@ h2 {
   border-radius: 12px;
   margin-top: 6px;
   background: #f7f7f7;
+  cursor: pointer;
 }
 
 .question input {
@@ -84,6 +85,7 @@ button.main {
   color: #fff;
   font-size: 16px;
   margin-top: 12px;
+  cursor: pointer;
 }
 
 .check-item {
@@ -94,7 +96,18 @@ button.main {
   background: #f7f7f7;
   border-radius: 14px;
   margin-bottom: 8px;
+  font-size: 14px;
 }
+
+.hint {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 12px;
+  display: none;
+}
+
+.hint.correct { background: #d4edda; color: #155724; }
+.hint.wrong { background: #f8d7da; color: #721c24; }
 
 /* MODAL */
 .modal {
@@ -133,7 +146,6 @@ button.main {
   <button onclick="openTab('checklist', this)">Чеклист</button>
 </header>
 
-<!-- ГЛАВНАЯ -->
 <section id="home" class="active">
   <div class="card">
     <h2>Администратор смены</h2>
@@ -144,13 +156,11 @@ button.main {
   </div>
 </section>
 
-<!-- ТЕСТ -->
 <section id="test">
   <div id="questions"></div>
   <button class="main" onclick="finishTest()">Завершить тест</button>
 </section>
 
-<!-- ЧЕКЛИСТ -->
 <section id="checklist">
   <div class="card">
     <h2>Ежедневный чеклист</h2>
@@ -159,19 +169,16 @@ button.main {
   </div>
 </section>
 
-<!-- MODAL REG -->
 <div class="modal" id="reglamentModal">
   <div class="modal-content">
     <h3>Регламент работы администратора</h3>
     <pre style="white-space: pre-wrap; font-size: 13px;">
-(весь текст регламента, который ты прислал,
-уже встроен сюда без изменений)
+(вставьте сюда текст регламента)
     </pre>
     <button class="main" onclick="closeModal('reglamentModal')">Понятно</button>
   </div>
 </div>
 
-<!-- MODAL RESULT -->
 <div class="modal" id="resultModal">
   <div class="modal-content">
     <h3>Результат теста</h3>
@@ -181,17 +188,118 @@ button.main {
 </div>
 
 <script>
+// Сложный тест с подсказками
 const questions = [
- ["Можно ли допускать пропущенные звонки?",1],
- ["Нужно ли включать кофемашину утром?",0],
- ["Разрешены ли личные продукты?",1],
- ["Кто открывает смену?",1],
- ["Нужно ли вести ежедневник?",0],
- ["Грязное рабочее место допустимо?",1],
- ["Нужно ли отвечать на отзывы?",0],
- ["Можно ли быть на кухне без причины?",1],
- ["Клиент всегда прав?",0],
- ["Нужно ли включать киоск утром?",0]
+{
+ q: "Вы вышли в зал и заметили грязную барную стойку для клиентов. Ваши действия?",
+ a: [
+  "Проигнорировать до конца смены",
+  "Сообщить повару",
+  "Немедленно привести зону в порядок",
+  "Убрать после напоминания клиента"
+ ],
+ correct: 2,
+ hint: "Согласно регламенту §1.1: администратор обязан следить за чистотой и порядком в зале и барной зоны для клиентов."
+},
+{
+ q: "Служебный телефон администратора разрядился в середине смены. Что это означает?",
+ a: [
+  "Ничего страшного",
+  "Допустимо, если есть личный телефон",
+  "Нарушение регламента",
+  "Ответственность несёт руководство"
+ ],
+ correct: 2,
+ hint: "§1.2: служебный телефон должен быть включён и рабочий, пропущенные звонки недопустимы."
+},
+{
+ q: "В кофемолке заканчивается кофе, но очередь небольшая. Как поступить?",
+ a: [
+  "Подождать до полного окончания",
+  "Добавить кофе сразу",
+  "Сообщить курьеру",
+  "Остановить приём заказов"
+ ],
+ correct: 1,
+ hint: "§1.3: кофе в кофемолке должно быть всегда, нужно поддерживать наличие."
+},
+{
+ q: "Вы заметили личные продукты сотрудника в холодильнике с напитками на виду. Ваши действия?",
+ a: [
+  "Оставить как есть",
+  "Убрать продукты или потребовать убрать",
+  "Переложить за напитки",
+  "Сообщить клиентам"
+ ],
+ correct: 1,
+ hint: "§1.3: личные продукты не должны храниться на виду, молоко спрятано за напитками."
+},
+{
+ q: "Заканчиваются стаканчики для кофе. Что должен сделать администратор?",
+ a: [
+  "Ничего, пока не закончатся",
+  "Сообщить ответственным лицам заранее",
+  "Ждать поставку",
+  "Заменить другими ёмкостями"
+ ],
+ correct: 1,
+ hint: "§1.3: при снижении остатков нужно сообщить ответственным лицам."
+},
+{
+ q: "Клиент недоволен заказом и повышает голос. Как действовать?",
+ a: [
+  "Ответить тем же",
+  "Игнорировать",
+  "Вежливо решить вопрос, клиент всегда прав",
+  "Передать разговор курьеру"
+ ],
+ correct: 2,
+ hint: "§2: правило заведения - клиент всегда прав, общение должно быть вежливым."
+},
+{
+ q: "Курьеров не хватает, заказы накапливаются. Что обязан сделать администратор?",
+ a: [
+  "Сам поехать на доставку",
+  "Сообщить ответственным лицам",
+  "Закрыть приём заказов без уведомления",
+  "Отменить заказы"
+ ],
+ correct: 1,
+ hint: "§2: обо всех непредвиденных обстоятельствах необходимо сообщать ответственным лицам."
+},
+{
+ q: "Касса не сходится при закрытии смены. Как правильно поступить?",
+ a: [
+  "Исправить сумму вручную",
+  "Оставить как есть",
+  "Сообщить ответственным лицам и зафиксировать",
+  "Переложить на следующую смену"
+ ],
+ correct: 2,
+ hint: "§2: необходимо своевременно вносить все расходы и движения денежных средств и вести ежедневник."
+},
+{
+ q: "Можно ли администратору находиться на кухне?",
+ a: [
+  "Всегда",
+  "По желанию",
+  "Только в экстренном случае до морозилки с десертами",
+  "Во время сборки заказов"
+ ],
+ correct: 2,
+ hint: "§3: допуск на кухню возможен только в экстренном случае, до морозилки с десертами."
+},
+{
+ q: "Когда должен быть включён киоск и неоновая лента?",
+ a: [
+  "По желанию",
+  "После первого заказа",
+  "С утра перед началом работы",
+  "Только вечером"
+ ],
+ correct: 2,
+ hint: "§1.2: киоск и неоновая лента включаются с утра перед началом работы."
+}
 ];
 
 const checklist = [
@@ -200,7 +308,7 @@ const checklist = [
  "Подогрев включён","Касса подсчитана","Ежедневник заполнен"
 ];
 
-function openTab(id, btn) {
+function openTab(id, btn){
  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
  document.querySelectorAll("header button").forEach(b=>b.classList.remove("active"));
  document.getElementById(id).classList.add("active");
@@ -216,22 +324,38 @@ function renderTest(){
  questions.forEach((e,i)=>{
   q.innerHTML+=`
   <div class="card question">
-   <b>${i+1}. ${e[0]}</b>
-   <label><input type="radio" name="q${i}" value="0"> Да</label>
-   <label><input type="radio" name="q${i}" value="1"> Нет</label>
+   <b>${i+1}. ${e.q}</b>
+   ${e.a.map((v,idx)=>`
+     <label>
+       <input type="radio" name="q${i}" value="${idx}" onclick="showHint(${i},${idx})">
+       ${v}
+     </label>`).join("")}
+   <div class="hint" id="hint${i}"></div>
   </div>`;
  });
+}
+
+function showHint(qIndex, val){
+ const hintEl=document.getElementById(`hint${qIndex}`);
+ if(val === questions[qIndex].correct){
+   hintEl.className="hint correct";
+   hintEl.innerText="✅ Правильно! " + questions[qIndex].hint;
+ } else {
+   hintEl.className="hint wrong";
+   hintEl.innerText="❌ Неверно. " + questions[qIndex].hint;
+ }
 }
 
 function finishTest(){
  let score=0;
  questions.forEach((e,i)=>{
   const r=document.querySelector(`input[name=q${i}]:checked`);
-  if(r && +r.value===e[1]) score++;
+  if(r && +r.value===e.correct) score++;
  });
  localStorage.setItem("testScore",score);
  document.getElementById("testResultText").innerText=
- `Правильных ответов: ${score} из 10`;
+ `Результат: ${score} из 10\n`+
+ (score>=8 ? "Тест пройден ✅" : "Тест не пройден ❌");
  openModal("resultModal");
 }
 
@@ -251,7 +375,7 @@ function saveChecklist(){
  const v=[...document.querySelectorAll("#checkItems input")].map(i=>i.checked);
  localStorage.setItem("check",JSON.stringify(v));
  openModal("resultModal");
- document.getElementById("testResultText").innerText="Чеклист сохранён";
+ document.getElementById("testResultText").innerText="Чеклист сохранён ✅";
 }
 
 renderTest();
